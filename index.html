@@ -310,8 +310,11 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
       <div class="fld r2">
         <div><label>Erlaubte Hoechstgeschw.</label>
           <select id="f-vmax">
-            <option>30 km/h</option><option>50 km/h</option><option>70 km/h</option>
-            <option>80 km/h</option><option>100 km/h</option><option>130 km/h</option><option>unbekannt</option>
+            <option>10 km/h</option><option>20 km/h</option><option>30 km/h</option>
+            <option>40 km/h</option><option>50 km/h</option><option>60 km/h</option>
+            <option>70 km/h</option><option>80 km/h</option><option>90 km/h</option>
+            <option>100 km/h</option><option>110 km/h</option><option>120 km/h</option>
+            <option>130 km/h</option><option>keine Beschraenkung</option><option>unbekannt</option>
           </select></div>
         <div><label>Strassentyp</label>
           <select id="f-strassentyp">
@@ -376,6 +379,63 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
   </div>
 
   <!-- ── TAB 4: SKETCH ── -->
+  <div id="t4" class="content" style="display:none;padding:0 0 90px 0">
+    <div style="display:flex;flex-direction:column;height:calc(100dvh - 160px);min-height:360px">
+      <!-- Toolbar Row 1 -->
+      <div style="background:var(--surf);border-bottom:1px solid var(--bdr);padding:7px 10px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;flex-shrink:0">
+        <select id="sk-bg" onchange="setSketchBG(this.value)" style="font-size:12px;padding:6px 8px;border:1.5px solid var(--bdr);border-radius:7px;background:var(--surf2);color:var(--tx);font-family:var(--fn);font-weight:700">
+          <option value="blank">Leere Flaeche</option>
+          <option value="straight">Gerade Strasse</option>
+          <option value="intersection">Kreuzung</option>
+          <option value="tjunction">T-Kreuzung</option>
+          <option value="curve">Kurve</option>
+          <option value="roundabout">Kreisverkehr</option>
+        </select>
+        <div style="width:1px;height:22px;background:var(--bdr);flex-shrink:0"></div>
+        <button id="sk-tool-pen" onclick="setSkTool('pen')" class="sk-tbtn active" title="Stift">&#x270F;&#xFE0F;</button>
+        <button id="sk-tool-arrow" onclick="setSkTool('arrow')" class="sk-tbtn" title="Pfeil">&#x2192;</button>
+        <button id="sk-tool-rect" onclick="setSkTool('rect')" class="sk-tbtn" title="Rechteck">&#x25AD;</button>
+        <button id="sk-tool-erase" onclick="setSkTool('erase')" class="sk-tbtn" title="Radiergummi">&#x1F9F9;</button>
+        <button id="sk-tool-text" onclick="setSkTool('text')" class="sk-tbtn" title="Text">T</button>
+        <button id="sk-tool-select" onclick="setSkTool('select')" class="sk-tbtn" title="Verschieben">&#x1F58F;&#xFE0F;</button>
+        <div style="width:1px;height:22px;background:var(--bdr);flex-shrink:0"></div>
+        <button onclick="setSkColor('#1a1a2e')" class="sk-cbtn" style="background:#1a1a2e"></button>
+        <button onclick="setSkColor('#e05c00')" class="sk-cbtn" style="background:#e05c00"></button>
+        <button onclick="setSkColor('#1a5fff')" class="sk-cbtn" style="background:#1a5fff"></button>
+        <button onclick="setSkColor('#00875a')" class="sk-cbtn" style="background:#00875a"></button>
+        <button onclick="setSkColor('#c0392b')" class="sk-cbtn" style="background:#c0392b"></button>
+        <select id="sk-size" onchange="skSize=parseInt(this.value)" style="font-size:12px;padding:6px 8px;border:1.5px solid var(--bdr);border-radius:7px;background:var(--surf2);color:var(--tx);font-family:var(--fn)">
+          <option value="2">Duenn</option><option value="4" selected>Normal</option><option value="7">Dick</option>
+        </select>
+        <button onclick="skUndo()" style="background:var(--surf2);border:1.5px solid var(--bdr);border-radius:7px;padding:6px 9px;font-size:13px;cursor:pointer" title="Rueckgaengig">&#x21A9;</button>
+        <button onclick="skClear()" style="background:var(--red-bg);border:1.5px solid var(--red-b);border-radius:7px;padding:6px 9px;font-size:12px;font-weight:700;color:var(--red);cursor:pointer">Neu</button>
+      </div>
+      <!-- Toolbar Row 2: Vehicle stamps -->
+      <div style="background:var(--surf2);border-bottom:1px solid var(--bdr);padding:6px 10px;display:flex;align-items:center;gap:6px;flex-shrink:0;overflow-x:auto;scrollbar-width:none">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);white-space:nowrap">Objekte:</div>
+        <button onclick="addVehicle('car','orange')" class="sk-stamp">&#x1F697; PKW 1</button>
+        <button onclick="addVehicle('car2','blue')" class="sk-stamp">&#x1F699; PKW 2</button>
+        <button onclick="addVehicle('car3','green')" class="sk-stamp">&#x1F698; PKW 3</button>
+        <button onclick="addVehicle('truck','gray')" class="sk-stamp">&#x1F69A; LKW</button>
+        <button onclick="addVehicle('moto','red')" class="sk-stamp">&#x1F3CD;&#xFE0F; Moto</button>
+        <button onclick="addVehicle('bike','green')" class="sk-stamp">&#x1F6B2; Rad</button>
+        <button onclick="addVehicle('person','blue')" class="sk-stamp">&#x1F6B6; Person</button>
+        <button onclick="addVehicle('barrier','gray')" class="sk-stamp">&#x1F6A7; Objekt</button>
+        <button onclick="skAddText()" class="sk-stamp">T Text</button>
+      </div>
+      <!-- Canvas -->
+      <div style="flex:1;position:relative;overflow:hidden;background:#f0f2f5" id="sk-container">
+        <canvas id="sk-canvas" style="display:block;touch-action:none;cursor:crosshair;width:100%;height:100%"></canvas>
+        <canvas id="sk-overlay" style="position:absolute;top:0;left:0;pointer-events:none;width:100%;height:100%"></canvas>
+        <div style="position:absolute;bottom:6px;right:8px;font-size:10px;color:rgba(0,0,0,.3);pointer-events:none">Objekte antippen zum Verschieben</div>
+      </div>
+    </div>
+    <div style="padding:8px 12px">
+      <button class="btn btn-p" onclick="goTab(5)" style="margin-top:0">Weiter &#x2192; Export</button>
+    </div>
+  </div>
+
+  <!-- ── TAB 5: EXPORT ── -->
   <div id="t5" class="content" style="display:none">
     <div id="summary"></div>
     <!-- CRYPTSHARE -->
@@ -676,7 +736,7 @@ function goTab(n) {
   document.getElementById('btn-prev').disabled = (n === 0);
   document.getElementById('btn-prev').style.opacity = (n === 0) ? '0.3' : '1';
   document.getElementById('btn-next').textContent = (n === 5) ? 'Export' : 'Weiter';
-  if (n === 5) buildSummary(); if (n === 4) { setTimeout(initSketch, 100); }
+  if (n === 5) buildSummary(); if (n === 4) initSketchOnce();
 }
 function nextTab() { if (ct < 5) goTab(ct + 1); }
 function prevTab() { if (ct > 0) goTab(ct - 1); }
@@ -1214,9 +1274,17 @@ function renderPers() {
       html += '<option' + (p.verletzung === v ? ' selected' : '') + '>' + v + '</option>';
     });
     html += '</select></div>';
-    html += '<div class="fld" id="p-verldet-wrap-' + p.id + '" style="display:' + (isVerletzt ? 'block' : 'none') + '">';
-    html += '<label>Verletzungsbeschreibung</label>';
+    html += '<div id="p-verldet-wrap-' + p.id + '" style="display:' + (isVerletzt ? 'block' : 'none') + '">';
+    html += '<div class="fld"><label>Verletzungsbeschreibung</label>';
     html += '<textarea id="p-verldet-' + p.id + '" placeholder="z.B. Schnittwunden am Arm, Verdacht auf Rippenbruch..." style="min-height:60px" onchange="savePers(' + p.id + ')">' + (p.verldetail || '') + '</textarea></div>';
+    html += '<div class="fld"><label>Verbracht in Klinik</label>';
+    html += '<select id="p-klinik-' + p.id + '" onchange="savePers(' + p.id + ')"><option value="">-- nicht transportiert --</option>';
+    TIROL_KLINIKEN.forEach(function(k) { html += '<option' + (p.klinik===k?' selected':'') + '>' + k + '</option>'; });
+    html += '</select></div>';
+    html += '<div class="fld"><label>Sozialversicherungsnummer (SVNr)</label>';
+    html += '<input type="text" id="p-svnr-' + p.id + '" placeholder="1234 010185" maxlength="15" value="' + (p.svnr||'') + '" onchange="savePers(' + p.id + ')" style="font-family:monospace;letter-spacing:2px">';
+    html += '<div style="font-size:10px;color:var(--dim);margin-top:3px">Format: 4-stellige Nummer + Geburtsdatum (TTMMJJ)</div></div>';
+    html += '</div>';
 
     // FS Foto
     html += '<div class="fld"><label>&#x1FAA6; Fuehrerschein (automatisch ausgelesen)</label>';
@@ -1742,20 +1810,26 @@ var SK_COLORS = {
 };
 var SK_LABELS = { car:'FZG 1', car2:'FZG 2', truck:'LKW', moto:'MOTO', bike:'RAD', person:'PERS', barrier:'OBJ' };
 
+var skInited = false;
+function initSketchOnce() {
+  if (!skInited) { initSketch(); skInited = true; }
+  else { setTimeout(function(){ var c=document.getElementById('sk-container'); if(c&&skCanvas){skCanvas.width=c.clientWidth;skCanvas.height=c.clientHeight;skOvCanvas.width=c.clientWidth;skOvCanvas.height=c.clientHeight;redrawAll();}},50); }
+}
 function initSketch() {
   skCanvas = document.getElementById('sk-canvas');
   skOvCanvas = document.getElementById('sk-overlay');
   if (!skCanvas) return;
   var cont = document.getElementById('sk-container');
   var W = cont.clientWidth, H = cont.clientHeight;
+  if (W < 10 || H < 10) { setTimeout(initSketch, 200); return; }
   skCanvas.width = W; skCanvas.height = H;
   skOvCanvas.width = W; skOvCanvas.height = H;
   skCtx = skCanvas.getContext('2d');
   skOvCtx = skOvCanvas.getContext('2d');
   skCtx.fillStyle = '#ffffff'; skCtx.fillRect(0, 0, W, H);
   drawBG(); redrawAll();
-  skCanvas.addEventListener('pointerdown', skPointerDown);
-  skCanvas.addEventListener('pointermove', skPointerMove);
+  skCanvas.addEventListener('pointerdown', skPointerDown, {passive:false});
+  skCanvas.addEventListener('pointermove', skPointerMove, {passive:false});
   skCanvas.addEventListener('pointerup', skPointerUp);
   skCanvas.addEventListener('pointercancel', skPointerUp);
 }
