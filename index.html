@@ -175,6 +175,16 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
   color:var(--dim);cursor:pointer;transition:all .2s;letter-spacing:.2px}
 .ret-btn.active{background:var(--red);border-color:var(--red);color:#fff;
   box-shadow:0 3px 10px rgba(192,57,43,.35)}
+.sk-tbtn{font-family:var(--fn);font-size:17px;padding:6px 9px;border-radius:7px;
+  border:1.5px solid var(--bdr);background:var(--surf2);cursor:pointer;transition:all .2s;line-height:1}
+.sk-tbtn.active{background:var(--acc);border-color:var(--acc);color:#fff}
+.sk-cbtn{width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(255,255,255,.8);cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .15s}
+.sk-cbtn:active{transform:scale(1.25)}
+.sk-stamp{background:var(--surf);border:1.5px solid var(--bdr);border-radius:7px;
+  padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;
+  color:var(--tx2);transition:all .2s}
+.sk-stamp:active{background:var(--acc-bg);border-color:var(--acc-b)}
 /* TOAST */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);
   background:#1a1a2e;color:#fff;font-weight:700;font-size:13px;padding:10px 18px;
@@ -228,8 +238,12 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
     <button class="tp" id="tp1" onclick="goTab(1)">2 Fahrzeuge</button>
     <button class="tp" id="tp2" onclick="goTab(2)">3 Personen</button>
     <button class="tp" id="tp3" onclick="goTab(3)">4 Fotos</button>
-    <button class="tp" id="tp4" onclick="goTab(4)">5 Export</button>
+    <button class="tp" id="tp4" onclick="goTab(4)">5 Skizze</button>
+    <button class="tp" id="tp5" onclick="goTab(5)">6 Export</button>
   </div>
+
+  <!-- Marken datalist -->
+  <datalist id="marken-list"></datalist>
 
   <!-- ── TAB 0: ORT ── -->
   <div id="t0" class="content">
@@ -358,11 +372,11 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
         <span style="font-size:20px">&#x1F4F7;</span> Weiteres Foto</button>
     </div>
     <div class="ibox b">Gesamtansicht &middot; Spurenlage &middot; Alle Schaeden &middot; Strassenschilder &middot; Kilometerstein &middot; Skizze der Unfallstelle</div>
-    <button class="btn btn-p" onclick="goTab(4)">Weiter &#x2192; Export</button>
+    <button class="btn btn-p" onclick="goTab(4)">Weiter &#x2192; Skizze</button>
   </div>
 
-  <!-- ── TAB 4: EXPORT ── -->
-  <div id="t4" class="content" style="display:none">
+  <!-- ── TAB 4: SKETCH ── -->
+  <div id="t5" class="content" style="display:none">
     <div id="summary"></div>
     <!-- CRYPTSHARE -->
     <div class="sec" style="border-color:var(--ok-b);background:var(--ok-bg)">
@@ -521,6 +535,11 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
         <div class="fld"><label>Dienststelle / Inspektion Adresse</label>
           <input type="text" id="s-pi-adr" placeholder="z.B. Untermarktstrasse 7, 6410 Telfs">
         </div>
+        <div class="fld">
+          <label>Aufnehmender Beamter (Name)</label>
+          <input type="text" id="s-beamter" placeholder="z.B. RevInsp Max Mustermann">
+          <div style="font-size:11px;color:var(--dim);margin-top:4px">Erscheint auf dem PDF-Protokoll</div>
+        </div>
         <div class="fld r2">
           <div><label>Bezirk</label>
             <select id="s-pi-bezirk">
@@ -529,7 +548,7 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
               <option>Kufstein</option><option>Kitzbühel</option><option>Lienz</option><option>Reutte</option>
             </select>
           </div>
-          <div><label>Dienstnummer (optional)</label>
+          <div><label>Dienstnummer</label>
             <input type="text" id="s-dienstnr" placeholder="z.B. 0512/123456">
           </div>
         </div>
@@ -628,8 +647,11 @@ var AUTO_FARBEN = [
 function initDataLists() {
   var dl = document.getElementById('gem-list');
   TIROL_ORTE.forEach(function(o) {
-    var opt = document.createElement('option');
-    opt.value = o; dl.appendChild(opt);
+    var opt = document.createElement('option'); opt.value = o; dl.appendChild(opt);
+  });
+  var mdl = document.getElementById('marken-list');
+  AUTO_MARKEN.forEach(function(m) {
+    var opt = document.createElement('option'); opt.value = m; mdl.appendChild(opt);
   });
 }
 
@@ -653,10 +675,10 @@ function goTab(n) {
   window.scrollTo(0, 0);
   document.getElementById('btn-prev').disabled = (n === 0);
   document.getElementById('btn-prev').style.opacity = (n === 0) ? '0.3' : '1';
-  document.getElementById('btn-next').textContent = (n === 4) ? 'Export' : 'Weiter';
-  if (n === 4) buildSummary();
+  document.getElementById('btn-next').textContent = (n === 5) ? 'Export' : 'Weiter';
+  if (n === 5) buildSummary(); if (n === 4) { setTimeout(initSketch, 100); }
 }
-function nextTab() { if (ct < 4) goTab(ct + 1); }
+function nextTab() { if (ct < 5) goTab(ct + 1); }
 function prevTab() { if (ct > 0) goTab(ct - 1); }
 
 function goHome() {
@@ -828,14 +850,20 @@ function doGPS() {
           var county = a.county || '';
           sv('f-strasse', [road + hn, place].filter(function(x) { return x.trim(); }).join(', ') || (lat.toFixed(6) + ', ' + lon.toFixed(6)));
           if (place) sv('f-gem', place);
-          // Auto bezirk from county
-          if (county) {
-            var bezSel = document.getElementById('f-bezirk');
-            for (var i = 0; i < bezSel.options.length; i++) {
-              if (county.toLowerCase().indexOf(bezSel.options[i].text.toLowerCase().split('-')[0]) >= 0) {
-                bezSel.selectedIndex = i; break;
-              }
-            }
+          // Auto bezirk from county/state_district
+          var bezStr = a.county || a.state_district || a.state || '';
+          if (bezStr) {
+            var bezMap = {
+              'innsbruck-land': 'Innsbruck-Land', 'innsbruck land': 'Innsbruck-Land',
+              'innsbruck-stadt': 'Innsbruck-Stadt', 'innsbruck stadt': 'Innsbruck-Stadt', 'innsbruck': 'Innsbruck-Stadt',
+              'imst': 'Imst', 'landeck': 'Landeck', 'schwaz': 'Schwaz',
+              'kufstein': 'Kufstein', 'kitzbühel': 'Kitzbühel', 'kitzbuhel': 'Kitzbühel',
+              'lienz': 'Lienz', 'reutte': 'Reutte'
+            };
+            var bezLow = bezStr.toLowerCase();
+            var matched = null;
+            Object.keys(bezMap).forEach(function(k) { if (bezLow.indexOf(k) >= 0 && !matched) matched = bezMap[k]; });
+            if (matched) sv('f-bezirk', matched);
           }
         })
         .catch(function() { sv('f-strasse', lat.toFixed(6) + ', ' + lon.toFixed(6)); });
@@ -986,7 +1014,8 @@ function renderFZ() {
 
     // Marke + Farbe
     html += '<div class="fld r2">';
-    html += '<div><label>Marke</label><select id="fz-marke-' + fz.id + '" onchange="saveFZ(' + fz.id + ')">' + buildMarkenOptions() + '</select></div>';
+    html += '<div><label>Marke (Dropdown oder Eingabe)</label>';
+    html += '<input type="text" id="fz-marke-' + fz.id + '" list="marken-list" placeholder="z.B. VW, BMW..." autocomplete="off" onchange="saveFZ(' + fz.id + ')" onblur="saveFZ(' + fz.id + ')"></div>';
     html += '<div><label>Farbe</label><select id="fz-farbe-' + fz.id + '" onchange="saveFZ(' + fz.id + ')">' + buildFarbenOptions() + '</select></div>';
     html += '</div>';
 
@@ -1022,7 +1051,7 @@ function renderFZ() {
 
   FZ.forEach(function(fz) {
     renderFZFotos(fz.id);
-    if (fz.marke) { var s = document.getElementById('fz-marke-' + fz.id); if (s) s.value = fz.marke; }
+    sv('fz-marke-' + fz.id, fz.marke);
     if (fz.farbe) { var sf = document.getElementById('fz-farbe-' + fz.id); if (sf) sf.value = fz.farbe; }
     sv('fz-modell-' + fz.id, fz.modell);
     sv('fz-kz-' + fz.id, fz.kz);
@@ -1083,7 +1112,7 @@ function capZul(fzId) {
           var ke = document.getElementById('fz-kz-' + fzId);
           var me = document.getElementById('fz-marke-' + fzId);
           if (ke && !ke.value) { ke.value = r.kz; ke.classList.add('hi'); }
-          if (r.marke && me) { me.value = r.marke; me.classList.add('hi'); }
+          if (r.marke && me) { me.value = r.marke; me.classList.add('hi'); me.setAttribute('list','marken-list'); }
           saveFZ(fzId);
           showBdg('fz-zul-ob-' + fzId, [r.kz, r.marke].filter(Boolean).join(' / '), true);
           toast('Zulassung: ' + r.kz);
@@ -1371,7 +1400,8 @@ function buildPDF() {
   var piName = piSettings.piName || 'PI Telfs';
   doc.text(piName + ' - Unfallaufnahme', mg, 11);
   doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 195, 220);
-  doc.text('LPD Tirol - Innsbruck-Land  |  App v' + APP_VER + '  |  Erstellt: ' + new Date().toLocaleString('de-AT'), mg, 19);
+  var beamterStr = piSettings.beamter ? ('  |  Beamter: ' + piSettings.beamter) : '';
+  doc.text('LPD Tirol  |  ' + (piSettings.piBezirk || 'Innsbruck-Land') + '  |  App v' + APP_VER + beamterStr + '  |  ' + new Date().toLocaleString('de-AT'), mg, 19);
   y = 36;
 
   FZ.forEach(function(fz) { saveFZ(fz.id); });
@@ -1497,6 +1527,13 @@ function buildPDF() {
     epList.forEach(function(p, i) { addImg(p.src, 'Unfallstelle - Foto ' + (i+1)); });
   }
 
+  // Section 5: Sketch
+  var skImg = getSketchDataURL();
+  if (skImg) {
+    sec('5.  UNFALLSKIZZE');
+    addImg(skImg, 'Unfallskizze (erstellt mit Skizzen-Tool)', cw);
+  }
+
   // Footer
   var pages = doc.getNumberOfPages();
   for (var pg = 1; pg <= pages; pg++) {
@@ -1504,7 +1541,7 @@ function buildPDF() {
     doc.setFillColor(240, 244, 248); doc.rect(0, 287, W, 10, 'F');
     doc.setFillColor(224, 92, 0); doc.rect(0, 287, W, 1, 'F');
     doc.setFontSize(7); doc.setTextColor(120, 135, 155); doc.setFont('helvetica', 'normal');
-    doc.text(piName + '  |  LPD Tirol  |  Seite ' + pg + '/' + pages, mg, 293);
+    doc.text(piName + (piSettings.beamter ? '  |  ' + piSettings.beamter : '') + '  |  Seite ' + pg + '/' + pages, mg, 293);
     doc.text(new Date().toLocaleString('de-AT'), W - mg, 293, { align: 'right' });
   }
   return doc;
@@ -1693,6 +1730,271 @@ function resetState() {
 }
 
 // ──────────────────────────────────────────────────────
+// SKETCH TOOL
+// ──────────────────────────────────────────────────────
+var skCtx, skOvCtx, skCanvas, skOvCanvas;
+var skTool = 'pen', skColor = '#1a1a2e', skSize = 4;
+var skDrawing = false, skStartX = 0, skStartY = 0;
+var skHistory = [], skVehicles = [];
+var skBG = 'blank';
+var SK_COLORS = {
+  orange:'#e05c00', blue:'#1a5fff', red:'#c0392b', green:'#00875a', gray:'#6a7a90'
+};
+var SK_LABELS = { car:'FZG 1', car2:'FZG 2', truck:'LKW', moto:'MOTO', bike:'RAD', person:'PERS', barrier:'OBJ' };
+
+function initSketch() {
+  skCanvas = document.getElementById('sk-canvas');
+  skOvCanvas = document.getElementById('sk-overlay');
+  if (!skCanvas) return;
+  var cont = document.getElementById('sk-container');
+  var W = cont.clientWidth, H = cont.clientHeight;
+  skCanvas.width = W; skCanvas.height = H;
+  skOvCanvas.width = W; skOvCanvas.height = H;
+  skCtx = skCanvas.getContext('2d');
+  skOvCtx = skOvCanvas.getContext('2d');
+  skCtx.fillStyle = '#ffffff'; skCtx.fillRect(0, 0, W, H);
+  drawBG(); redrawAll();
+  skCanvas.addEventListener('pointerdown', skPointerDown);
+  skCanvas.addEventListener('pointermove', skPointerMove);
+  skCanvas.addEventListener('pointerup', skPointerUp);
+  skCanvas.addEventListener('pointercancel', skPointerUp);
+}
+
+function getPos(e) {
+  var r = skCanvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (skCanvas.width / r.width), y: (e.clientY - r.top) * (skCanvas.height / r.height) };
+}
+
+function drawBG() {
+  var W = skCanvas.width, H = skCanvas.height;
+  var ctx = skCtx;
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+  if (skBG === 'blank') return;
+  ctx.strokeStyle = '#b0c0d8'; ctx.lineWidth = 2;
+  var cx = W/2, cy = H/2, rw = 60, lw = W;
+  ctx.fillStyle = '#e8eef7';
+  if (skBG === 'straight') {
+    ctx.fillRect(0, cy - rw, W, rw * 2);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.setLineDash([20,15]);
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#aab8cc'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(0, cy-rw); ctx.lineTo(W, cy-rw); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, cy+rw); ctx.lineTo(W, cy+rw); ctx.stroke();
+  } else if (skBG === 'intersection') {
+    ctx.fillRect(cx-rw, 0, rw*2, H);
+    ctx.fillRect(0, cy-rw, W, rw*2);
+    ctx.strokeStyle = '#aab8cc'; ctx.lineWidth = 3;
+    [cx-rw,cx+rw].forEach(function(x) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,cy-rw); ctx.moveTo(x,cy+rw); ctx.lineTo(x,H); ctx.stroke(); });
+    [cy-rw,cy+rw].forEach(function(y) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cx-rw,y); ctx.moveTo(cx+rw,y); ctx.lineTo(W,y); ctx.stroke(); });
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.setLineDash([15,12]);
+    ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,cy-rw); ctx.moveTo(cx,cy+rw); ctx.lineTo(cx,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(cx-rw,cy); ctx.moveTo(cx+rw,cy); ctx.lineTo(W,cy); ctx.stroke();
+    ctx.setLineDash([]);
+  } else if (skBG === 'tjunction') {
+    ctx.fillRect(0, cy-rw, W, rw*2);
+    ctx.fillRect(cx-rw, cy-rw, rw*2, H);
+    ctx.strokeStyle = '#aab8cc'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(0,cy-rw); ctx.lineTo(W,cy-rw); ctx.moveTo(0,cy+rw); ctx.lineTo(cx-rw,cy+rw); ctx.moveTo(cx+rw,cy+rw); ctx.lineTo(W,cy+rw); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-rw,cy+rw); ctx.lineTo(cx-rw,H); ctx.moveTo(cx+rw,cy+rw); ctx.lineTo(cx+rw,H); ctx.stroke();
+  } else if (skBG === 'curve') {
+    ctx.beginPath(); ctx.fillStyle = '#e8eef7';
+    ctx.arc(W*0.1, H*0.1, rw*3.5, 0, Math.PI/2); ctx.lineTo(W*0.1, H*0.1); ctx.fill();
+    ctx.beginPath(); ctx.arc(W*0.1, H*0.1, rw*2.5, 0, Math.PI/2); ctx.lineTo(W*0.1, H*0.1); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(W*0.1, H*0.1, rw*2.5, 0, Math.PI/2); ctx.lineTo(W*0.1, H*0.1); ctx.fill();
+    ctx.strokeStyle = '#aab8cc'; ctx.lineWidth = 3; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(W*0.1, H*0.1, rw*3.5, 0, Math.PI/2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(W*0.1, H*0.1, rw*1.5, 0, Math.PI/2); ctx.stroke();
+  } else if (skBG === 'roundabout') {
+    ctx.beginPath(); ctx.arc(cx, cy, rw*2, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#aab8cc'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, rw*2, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = '#d8e4f0'; ctx.beginPath(); ctx.arc(cx, cy, rw, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#aab8cc'; ctx.beginPath(); ctx.arc(cx, cy, rw, 0, Math.PI*2); ctx.stroke();
+    [[cx,0],[W,cy],[cx,H],[0,cy]].forEach(function(pt) {
+      ctx.fillStyle = '#e8eef7';
+      ctx.fillRect(pt[0]-rw, pt[1]-rw, rw*2, rw*2);
+    });
+  }
+}
+
+function redrawAll() {
+  var W = skCanvas.width, H = skCanvas.height;
+  skCtx.fillStyle = '#ffffff'; skCtx.fillRect(0,0,W,H);
+  drawBG();
+  skHistory.forEach(function(cmd) { playCmd(skCtx, cmd); });
+  drawVehicles();
+}
+
+function playCmd(ctx, cmd) {
+  ctx.strokeStyle = cmd.color; ctx.fillStyle = cmd.color;
+  ctx.lineWidth = cmd.size; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (cmd.type === 'path') {
+    ctx.beginPath(); ctx.moveTo(cmd.pts[0].x, cmd.pts[0].y);
+    cmd.pts.forEach(function(p) { ctx.lineTo(p.x, p.y); }); ctx.stroke();
+  } else if (cmd.type === 'rect') {
+    ctx.strokeRect(cmd.x, cmd.y, cmd.w, cmd.h);
+  } else if (cmd.type === 'arrow') {
+    var dx=cmd.ex-cmd.sx, dy=cmd.ey-cmd.sy, len=Math.sqrt(dx*dx+dy*dy);
+    if (len < 5) return;
+    ctx.beginPath(); ctx.moveTo(cmd.sx,cmd.sy); ctx.lineTo(cmd.ex,cmd.ey); ctx.stroke();
+    var angle=Math.atan2(dy,dx), hw=Math.max(8,cmd.size*3);
+    ctx.beginPath(); ctx.moveTo(cmd.ex,cmd.ey);
+    ctx.lineTo(cmd.ex-hw*Math.cos(angle-0.4),cmd.ey-hw*Math.sin(angle-0.4));
+    ctx.lineTo(cmd.ex-hw*Math.cos(angle+0.4),cmd.ey-hw*Math.sin(angle+0.4));
+    ctx.closePath(); ctx.fill();
+  } else if (cmd.type === 'text') {
+    ctx.font = 'bold ' + (cmd.size*3+10) + 'px DM Sans,sans-serif';
+    ctx.fillText(cmd.text, cmd.x, cmd.y);
+  }
+}
+
+function drawVehicles() {
+  skVehicles.forEach(function(v) {
+    var ctx = skCtx;
+    ctx.save(); ctx.translate(v.x, v.y); ctx.rotate(v.rot || 0);
+    var col = SK_COLORS[v.color] || '#e05c00';
+    var w = 36, h = 22;
+    // Body
+    ctx.fillStyle = col; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    if (v.type === 'person') {
+      ctx.beginPath(); ctx.arc(0, -8, 8, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillRect(-6, 0, 12, 16); ctx.strokeRect(-6, 0, 12, 16);
+    } else if (v.type === 'barrier') {
+      ctx.fillRect(-20, -10, 40, 20); ctx.strokeRect(-20, -10, 40, 20);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+      for (var i=-15; i<20; i+=8) { ctx.beginPath(); ctx.moveTo(i,-10); ctx.lineTo(i+5,10); ctx.stroke(); }
+    } else if (v.type === 'truck') {
+      ctx.fillRect(-28, -h/2, 56, h); ctx.strokeRect(-28, -h/2, 56, h);
+      ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(16, -h/2, 12, h/2);
+    } else if (v.type === 'bike') {
+      ctx.beginPath(); ctx.arc(-12, 8, 8, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(12, 8, 8, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(0,-10); ctx.lineTo(12,0); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.roundRect(-w/2, -h/2, w, h, 5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.beginPath(); ctx.roundRect(-w/2+2, -h/2+2, w-8, h/2-2, 3); ctx.fill();
+    }
+    // Label
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 2;
+    ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.strokeText(v.label || SK_LABELS[v.type], 0, v.type === 'bike' ? -12 : 0);
+    ctx.fillText(v.label || SK_LABELS[v.type], 0, v.type === 'bike' ? -12 : 0);
+    // Direction arrow
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, -h/2-4); ctx.lineTo(0, -h/2-14);
+    ctx.moveTo(-5,-h/2-10); ctx.lineTo(0,-h/2-14); ctx.lineTo(5,-h/2-10); ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function addVehicle(type, color) {
+  setSkTool('select');
+  var W = skCanvas.width, H = skCanvas.height;
+  var cnt = skVehicles.filter(function(v){return v.type===type;}).length;
+  skVehicles.push({ type:type, color:color, x:W/2+(cnt*40), y:H/2, rot:0, label:SK_LABELS[type]+(cnt>0?(' '+(cnt+1)):'') });
+  redrawAll();
+}
+
+function skAddText() {
+  setSkTool('text');
+  toast('Text-Werkzeug: Auf Canvas tippen');
+}
+
+// Touch/Mouse handling
+var skCurPath = null;
+var skDragVeh = null, skDragOff = {x:0,y:0};
+
+function skPointerDown(e) {
+  e.preventDefault();
+  var pos = getPos(e);
+  skDrawing = true; skStartX = pos.x; skStartY = pos.y;
+  if (skTool === 'select') {
+    // check vehicle hit
+    skDragVeh = null;
+    for (var i = skVehicles.length-1; i >= 0; i--) {
+      var v = skVehicles[i];
+      if (Math.abs(pos.x-v.x) < 30 && Math.abs(pos.y-v.y) < 25) {
+        skDragVeh = v; skDragOff = {x:pos.x-v.x, y:pos.y-v.y}; break;
+      }
+    }
+  } else if (skTool === 'pen') {
+    skCurPath = {type:'path',color:skColor,size:skSize,pts:[pos]};
+  } else if (skTool === 'text') {
+    var txt = prompt('Text eingeben:', '');
+    if (txt) { skHistory.push({type:'text',color:skColor,size:skSize,text:txt,x:pos.x,y:pos.y}); redrawAll(); }
+    skDrawing = false;
+  } else if (skTool === 'erase') {
+    skCurPath = {type:'path',color:'#ffffff',size:skSize*5,pts:[pos]};
+  }
+}
+
+function skPointerMove(e) {
+  if (!skDrawing) return;
+  e.preventDefault();
+  var pos = getPos(e);
+  if (skTool === 'select' && skDragVeh) {
+    skDragVeh.x = pos.x - skDragOff.x; skDragVeh.y = pos.y - skDragOff.y;
+    redrawAll(); return;
+  }
+  if ((skTool === 'pen' || skTool === 'erase') && skCurPath) {
+    skCurPath.pts.push(pos);
+    playCmd(skCtx, skCurPath); return;
+  }
+  // Preview for arrow/rect
+  if (skTool === 'arrow' || skTool === 'rect') {
+    redrawAll();
+    skOvCtx.clearRect(0,0,skOvCanvas.width,skOvCanvas.height);
+    var prev = {type: skTool==='arrow'?'arrow':'rect', color:skColor, size:skSize,
+      sx:skStartX, sy:skStartY, ex:pos.x, ey:pos.y,
+      x:Math.min(skStartX,pos.x), y:Math.min(skStartY,pos.y),
+      w:Math.abs(pos.x-skStartX), h:Math.abs(pos.y-skStartY)};
+    playCmd(skOvCtx, prev);
+  }
+}
+
+function skPointerUp(e) {
+  if (!skDrawing) return;
+  skDrawing = false;
+  var pos = e ? getPos(e) : {x:skStartX,y:skStartY};
+  if ((skTool === 'pen' || skTool === 'erase') && skCurPath) {
+    skCurPath.pts.push(pos); skHistory.push(skCurPath); skCurPath = null;
+  } else if (skTool === 'arrow') {
+    skHistory.push({type:'arrow',color:skColor,size:skSize,sx:skStartX,sy:skStartY,ex:pos.x,ey:pos.y});
+  } else if (skTool === 'rect') {
+    skHistory.push({type:'rect',color:skColor,size:skSize,
+      x:Math.min(skStartX,pos.x),y:Math.min(skStartY,pos.y),
+      w:Math.abs(pos.x-skStartX),h:Math.abs(pos.y-skStartY)});
+  }
+  skOvCtx.clearRect(0,0,skOvCanvas.width,skOvCanvas.height);
+  skDragVeh = null; redrawAll();
+}
+
+function setSkTool(t) {
+  skTool = t;
+  document.querySelectorAll('.sk-tbtn').forEach(function(b) { b.classList.remove('active'); });
+  var btn = document.getElementById('sk-tool-' + t);
+  if (btn) btn.classList.add('active');
+  skCanvas.style.cursor = t === 'erase' ? 'cell' : t === 'select' ? 'grab' : 'crosshair';
+}
+function setSkColor(col) { skColor = col; }
+function setSketchBG(bg) { skBG = bg; redrawAll(); }
+function skUndo() {
+  if (skHistory.length) { skHistory.pop(); redrawAll(); }
+  else if (skVehicles.length) { skVehicles.pop(); redrawAll(); }
+}
+function skClear() {
+  if (!confirm('Skizze loeschen?')) return;
+  skHistory = []; skVehicles = []; redrawAll();
+}
+function getSketchDataURL() {
+  if (!skCanvas) return null;
+  return skCanvas.toDataURL('image/jpeg', 0.85);
+}
+
+// ──────────────────────────────────────────────────────
 // TOAST
 // ──────────────────────────────────────────────────────
 function toast(msg) {
@@ -1721,6 +2023,7 @@ function showSettings() {
   document.getElementById('s-pi-adr').value = s.piAdr || '';
   document.getElementById('s-pi-bezirk').value = s.piBezirk || 'Innsbruck-Land';
   document.getElementById('s-dienstnr').value = s.dienstnr || '';
+  document.getElementById('s-beamter').value = s.beamter || '';
   document.getElementById('settings-modal').style.display = 'block';
 }
 function hideSettings() { document.getElementById('settings-modal').style.display = 'none'; }
@@ -1729,7 +2032,8 @@ function saveSettings() {
     piName:   document.getElementById('s-pi-name').value.trim() || 'PI Telfs',
     piAdr:    document.getElementById('s-pi-adr').value.trim(),
     piBezirk: document.getElementById('s-pi-bezirk').value,
-    dienstnr: document.getElementById('s-dienstnr').value.trim()
+    dienstnr: document.getElementById('s-dienstnr').value.trim(),
+    beamter:  document.getElementById('s-beamter').value.trim()
   };
   localStorage.setItem('unfall-settings', JSON.stringify(s));
   applySettings();
