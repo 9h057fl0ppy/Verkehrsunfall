@@ -235,10 +235,10 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
   </div>
   <div class="tabs">
     <button class="tp active" id="tp0" onclick="goTab(0)">1 Ort</button>
-    <button class="tp" id="tp1" onclick="goTab(1)">2 Fahrzeuge</button>
-    <button class="tp" id="tp2" onclick="goTab(2)">3 Personen</button>
-    <button class="tp" id="tp3" onclick="goTab(3)">4 Fotos</button>
-    <button class="tp" id="tp4" onclick="goTab(4)">5 Skizze</button>
+    <button class="tp" id="tp1" onclick="goTab(1)">2 Skizze</button>
+    <button class="tp" id="tp2" onclick="goTab(2)">3 Fahrzeuge</button>
+    <button class="tp" id="tp3" onclick="goTab(3)">4 Personen</button>
+    <button class="tp" id="tp4" onclick="goTab(4)">5 Fotos</button>
     <button class="tp" id="tp5" onclick="goTab(5)">6 Export</button>
   </div>
 
@@ -346,27 +346,27 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
         </div>
       </div>
     </div>
-    <button class="btn btn-p" onclick="goTab(1)">Weiter &#x2192; Fahrzeuge</button>
+    <button class="btn btn-p" onclick="goTab(2)">Weiter &#x2192; Fahrzeuge</button>
   </div>
 
-  <!-- ── TAB 1: FAHRZEUGE ── -->
-  <div id="t1" class="content" style="display:none">
+  <!-- ── TAB 2: FAHRZEUGE ── -->
+  <div id="t2" class="content" style="display:none">
     <div class="ibox a">Alle beteiligten Fahrzeuge und beschaedigte Objekte eintragen. Foto machen - Kennzeichen wird automatisch erkannt.</div>
     <div id="fz-list"></div>
     <button class="add-btn" onclick="addFZ()"><span style="font-size:20px">&#x2795;</span> Fahrzeug / Objekt hinzufuegen</button>
-    <button class="btn btn-p" onclick="goTab(2)">Weiter &#x2192; Personen</button>
+    <button class="btn btn-p" onclick="goTab(3)">Weiter &#x2192; Personen</button>
   </div>
 
-  <!-- ── TAB 2: PERSONEN ── -->
-  <div id="t2" class="content" style="display:none">
+  <!-- ── TAB 3: PERSONEN ── -->
+  <div id="t3" class="content" style="display:none">
     <div class="ibox b">Alle beteiligten Personen eintragen. Fuehrerschein fotografieren - Daten werden automatisch erkannt.</div>
     <div id="pers-list"></div>
     <button class="add-btn" onclick="addPers()"><span style="font-size:20px">&#x2795;</span> Person hinzufuegen</button>
-    <button class="btn btn-p" onclick="goTab(3)">Weiter &#x2192; Fotos</button>
+    <button class="btn btn-p" onclick="goTab(4)">Weiter &#x2192; Fotos</button>
   </div>
 
-  <!-- ── TAB 3: FOTOS ── -->
-  <div id="t3" class="content" style="display:none">
+  <!-- ── TAB 4: FOTOS ── -->
+  <div id="t4" class="content" style="display:none">
     <div class="sec">
       <div class="sec-hdr"><div class="sec-ico">&#x1F4F7;</div>
         <div><div class="sec-ttl">Unfallstellenfotos</div><div class="sec-sub">Gesamtansicht, Spuren, Schaeden</div></div></div>
@@ -375,11 +375,11 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
         <span style="font-size:20px">&#x1F4F7;</span> Weiteres Foto</button>
     </div>
     <div class="ibox b">Gesamtansicht &middot; Spurenlage &middot; Alle Schaeden &middot; Strassenschilder &middot; Kilometerstein &middot; Skizze der Unfallstelle</div>
-    <button class="btn btn-p" onclick="goTab(4)">Weiter &#x2192; Skizze</button>
+    <button class="btn btn-p" onclick="goTab(1)">Weiter &#x2192; Skizze</button>
   </div>
 
-  <!-- ── TAB 4: SKETCH ── -->
-  <div id="t4" class="content" style="display:none;padding:0 0 90px 0">
+  <!-- ── TAB 1: SKETCH ── -->
+  <div id="t1" class="content" style="display:none;padding:0 0 90px 0">
     <div style="display:flex;flex-direction:column;height:calc(100dvh - 160px);min-height:360px">
       <!-- Toolbar Row 1 -->
       <div style="background:var(--surf);border-bottom:1px solid var(--bdr);padding:7px 10px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;flex-shrink:0">
@@ -422,6 +422,11 @@ input.hi-red{border-color:var(--red)!important;background:var(--red-bg)!importan
         <button onclick="addVehicle('person','blue')" class="sk-stamp">&#x1F6B6; Person</button>
         <button onclick="addVehicle('barrier','gray')" class="sk-stamp">&#x1F6A7; Objekt</button>
         <button onclick="skAddText()" class="sk-stamp">T Text</button>
+        <div style="width:1px;height:22px;background:var(--bdr);flex-shrink:0"></div>
+        <button onclick="rotateSelected(-15)" class="sk-stamp" title="Links drehen">&#x21BA; -15°</button>
+        <button onclick="rotateSelected(15)" class="sk-stamp" title="Rechts drehen">&#x21BB; +15°</button>
+        <button onclick="rotateSelected(90)" class="sk-stamp" title="90° drehen">90°&#x21BB;</button>
+        <button onclick="deleteSelected()" class="sk-stamp" style="color:var(--red)">&#x1F5D1;</button>
       </div>
       <!-- Canvas -->
       <div style="flex:1;position:relative;overflow:hidden;background:#f0f2f5" id="sk-container">
@@ -736,7 +741,7 @@ function goTab(n) {
   document.getElementById('btn-prev').disabled = (n === 0);
   document.getElementById('btn-prev').style.opacity = (n === 0) ? '0.3' : '1';
   document.getElementById('btn-next').textContent = (n === 5) ? 'Export' : 'Weiter';
-  if (n === 5) buildSummary(); if (n === 4) initSketchOnce();
+  if (n === 5) buildSummary(); if (n === 1) initSketchOnce();
 }
 function nextTab() { if (ct < 5) goTab(ct + 1); }
 function prevTab() { if (ct > 0) goTab(ct - 1); }
@@ -1063,7 +1068,9 @@ function renderFZ() {
     html += '<div class="card" id="fz-c-' + fz.id + '">';
     html += '<button class="cdel" onclick="delFZ(' + fz.id + ')">&#x2715;</button>';
     html += '<div class="card-hdr"><div class="cnum">' + (i+1) + '</div>';
-    html += '<div style="font-size:14px;font-weight:800">Fahrzeug / Objekt ' + (i+1) + '</div></div>';
+    html += '<div><div style="font-size:14px;font-weight:800">Fahrzeug / Objekt ' + (i+1) + '</div>';
+    if (fz.skLabel) html += '<div style="font-size:11px;color:var(--acc);font-weight:700;margin-top:2px">&#x1F58A;&#xFE0F; Skizze: ' + fz.skLabel + '</div>';
+    html += '</div></div>';
 
     // Typ
     html += '<div class="fld"><label>Typ</label><select id="fz-typ-' + fz.id + '" onchange="saveFZ(' + fz.id + ')">';
@@ -1274,15 +1281,17 @@ function renderPers() {
       html += '<option' + (p.verletzung === v ? ' selected' : '') + '>' + v + '</option>';
     });
     html += '</select></div>';
-    html += '<div id="p-verldet-wrap-' + p.id + '" style="display:' + (isVerletzt ? 'block' : 'none') + '">';
+    html += '<div id="p-verldet-wrap-' + p.id + '" style="display:' + (isVerletzt ? 'block' : 'none') + ';border-top:2px solid var(--red-b);margin-top:10px;padding-top:10px">';
+    html += '<div style="font-size:12px;font-weight:800;color:var(--red);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Verletzungsdetails</div>';
     html += '<div class="fld"><label>Verletzungsbeschreibung</label>';
     html += '<textarea id="p-verldet-' + p.id + '" placeholder="z.B. Schnittwunden am Arm, Verdacht auf Rippenbruch..." style="min-height:60px" onchange="savePers(' + p.id + ')">' + (p.verldetail || '') + '</textarea></div>';
-    html += '<div class="fld"><label>Verbracht in Klinik</label>';
-    html += '<select id="p-klinik-' + p.id + '" onchange="savePers(' + p.id + ')"><option value="">-- nicht transportiert --</option>';
+    html += '<div class="fld"><label>Verbracht in Krankenhaus</label>';
+    html += '<select id="p-klinik-' + p.id + '" onchange="savePers(' + p.id + ')">';
+    html += '<option value="">-- nicht transportiert --</option>';
     TIROL_KLINIKEN.forEach(function(k) { html += '<option' + (p.klinik===k?' selected':'') + '>' + k + '</option>'; });
     html += '</select></div>';
     html += '<div class="fld"><label>Sozialversicherungsnummer (SVNr)</label>';
-    html += '<input type="text" id="p-svnr-' + p.id + '" placeholder="1234 010185" maxlength="15" value="' + (p.svnr||'') + '" onchange="savePers(' + p.id + ')" style="font-family:monospace;letter-spacing:2px">';
+    html += '<input type="text" id="p-svnr-' + p.id + '" placeholder="1234 010185" maxlength="15" value="' + (p.svnr || '') + '" onchange="savePers(' + p.id + ')" style="font-family:monospace;font-size:18px;letter-spacing:3px">';
     html += '<div style="font-size:10px;color:var(--dim);margin-top:3px">Format: 4-stellige Nummer + Geburtsdatum (TTMMJJ)</div></div>';
     html += '</div>';
 
@@ -1302,9 +1311,12 @@ function renderPers() {
 }
 
 function toggleVerlDetail(id) {
-  var sel = document.getElementById('p-verl-' + id);
+  savePers(id);
+  var p = PERS.find(function(x) { return x.id === id; });
   var wrap = document.getElementById('p-verldet-wrap-' + id);
-  if (sel && wrap) wrap.style.display = sel.value !== 'Unverletzt' ? 'block' : 'none';
+  if (!wrap) return;
+  var isVerl = p && p.verletzung && p.verletzung !== 'Unverletzt';
+  wrap.style.display = isVerl ? 'block' : 'none';
 }
 
 function capFS(pId) {
@@ -1803,6 +1815,7 @@ function resetState() {
 var skCtx, skOvCtx, skCanvas, skOvCanvas;
 var skTool = 'pen', skColor = '#1a1a2e', skSize = 4;
 var skDrawing = false, skStartX = 0, skStartY = 0;
+var skSelectedVeh = null;
 var skHistory = [], skVehicles = [];
 var skBG = 'blank';
 var SK_COLORS = {
@@ -1960,6 +1973,11 @@ function drawVehicles() {
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, -h/2-4); ctx.lineTo(0, -h/2-14);
     ctx.moveTo(-5,-h/2-10); ctx.lineTo(0,-h/2-14); ctx.lineTo(5,-h/2-10); ctx.stroke();
+    // Selection ring
+    if (v === skSelectedVeh) {
+      ctx.strokeStyle = '#ffdd00'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, 0, Math.max(w,h)/2+10, 0, Math.PI*2); ctx.stroke();
+    }
     ctx.restore();
   });
 }
@@ -1967,9 +1985,37 @@ function drawVehicles() {
 function addVehicle(type, color) {
   setSkTool('select');
   var W = skCanvas.width, H = skCanvas.height;
-  var cnt = skVehicles.filter(function(v){return v.type===type;}).length;
-  skVehicles.push({ type:type, color:color, x:W/2+(cnt*40), y:H/2, rot:0, label:SK_LABELS[type]+(cnt>0?(' '+(cnt+1)):'') });
+  var fvCount = skVehicles.filter(function(v){return v.type===type;}).length;
+  var label = SK_LABELS[type] + (fvCount > 0 ? (' ' + (fvCount+1)) : '');
+  var veh = { type:type, color:color, x:80+fvCount*50, y:H/2+fvCount*30, rot:0, label:label };
+  skVehicles.push(veh);
+  skSelectedVeh = veh;
   redrawAll();
+  // Auto-create vehicle in tab 3 (Fahrzeuge) if it is a vehicle type
+  if (type !== 'person' && type !== 'barrier') {
+    var fzColor = { orange:'Orange', blue:'Blau (hell)', red:'Rot', green:'Gruen', gray:'Silber / Grau' };
+    var id = fzc++;
+    FZ.push({ id:id, typ: type==='truck'?'LKW':type==='moto'?'Motorrad':type==='bike'?'Fahrrad':'PKW',
+      kz:'', marke:'', modell:'', farbe: fzColor[color]||'', schaden:'', skLabel:label });
+    FZP[id] = { fotos:[], zul:null };
+    veh.fzId = id;
+    toast('Fahrzeug ' + label + ' in Tab Fahrzeuge angelegt');
+  }
+}
+
+function rotateSelected(deg) {
+  if (skSelectedVeh) {
+    skSelectedVeh.rot = (skSelectedVeh.rot || 0) + deg * Math.PI / 180;
+    redrawAll();
+  } else {
+    toast('Fahrzeug zuerst antippen (Verschieben-Modus)');
+  }
+}
+function deleteSelected() {
+  if (skSelectedVeh) {
+    skVehicles = skVehicles.filter(function(v) { return v !== skSelectedVeh; });
+    skSelectedVeh = null; redrawAll();
+  }
 }
 
 function skAddText() {
@@ -1986,12 +2032,13 @@ function skPointerDown(e) {
   var pos = getPos(e);
   skDrawing = true; skStartX = pos.x; skStartY = pos.y;
   if (skTool === 'select') {
-    // check vehicle hit
-    skDragVeh = null;
+    skDragVeh = null; skSelectedVeh = null;
     for (var i = skVehicles.length-1; i >= 0; i--) {
       var v = skVehicles[i];
-      if (Math.abs(pos.x-v.x) < 30 && Math.abs(pos.y-v.y) < 25) {
-        skDragVeh = v; skDragOff = {x:pos.x-v.x, y:pos.y-v.y}; break;
+      if (Math.abs(pos.x-v.x) < 35 && Math.abs(pos.y-v.y) < 30) {
+        skDragVeh = v; skSelectedVeh = v;
+        skDragOff = {x:pos.x-v.x, y:pos.y-v.y};
+        break;
       }
     }
   } else if (skTool === 'pen') {
